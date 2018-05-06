@@ -24,6 +24,18 @@ router.get("/:id", (req, res) => {
   respondAndRenderProject(id, res, "singleProject");
 });
 
+// CREATE A PROJECT
+router.post("/", (req, res) => {
+  validateProjectRenderError(req, res, project => {
+    knex("projects")
+      .insert(project, "id")
+      .then(ids => {
+        const id = ids[0];
+        res.redirect(`/projects/${id}`);
+      });
+  });
+});
+
 function respondAndRenderProject(id, res, viewName) {
   if (validId(id)) {
     knex("projects")
@@ -39,6 +51,30 @@ function respondAndRenderProject(id, res, viewName) {
       message: "Invalid id"
     });
   }
+}
+
+function validateProjectRenderError(req, res, callback) {
+  if (validProject(req.body)) {
+    const project = {
+      title: req.body.title,
+      description: req.body.description,
+      start_date: req.body.start_date,
+      eta: req.body.eta,
+      done: req.body.done
+      //TODO ADD VALIDATIONS
+    };
+
+    callback(project);
+  } else {
+    res.status(500);
+    res.render("error", {
+      message: "Invalid todo"
+    });
+  }
+}
+
+function validProject(project) {
+  return typeof project.title == "string" && project.title.trim() != "";
 }
 
 function validId(id) {
