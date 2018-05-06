@@ -8,7 +8,7 @@ router.get("/", function(req, res, next) {
   knex("projects")
     .select()
     .then(projects => {
-      console.log(JSON.stringify(projects, undefined, 2));
+      // console.log(JSON.stringify(projects, undefined, 2));
       res.render("projects", { projects: projects });
     });
 });
@@ -24,6 +24,13 @@ router.get("/:id", (req, res) => {
   respondAndRenderProject(id, res, "singleProject");
 });
 
+// GET TASKS
+router.get("/:id/tasks", (req, res) => {
+  const id = req.params.id;
+  respondAndRenderTasks(id, res, "tasks");
+});
+
+/* *************** POSTS ********************* */
 // CREATE A PROJECT
 router.post("/", (req, res) => {
   validateProjectRenderError(req, res, project => {
@@ -53,6 +60,23 @@ function respondAndRenderProject(id, res, viewName) {
   }
 }
 
+function respondAndRenderTasks(id, res, viewName) {
+  if (validId(id)) {
+    knex("tasks")
+      .select()
+      .where("project_id", id)
+      .then(tasks => {
+        console.log(JSON.stringify(tasks, undefined, 2));
+        res.render(viewName, { tasks: tasks });
+      });
+  } else {
+    res.status(500);
+    res.render("error", {
+      message: "Invalid id"
+    });
+  }
+}
+
 function validateProjectRenderError(req, res, callback) {
   if (validProject(req.body)) {
     const project = {
@@ -61,7 +85,6 @@ function validateProjectRenderError(req, res, callback) {
       start_date: req.body.start_date,
       eta: req.body.eta,
       done: req.body.done
-      //TODO ADD VALIDATIONS
     };
 
     callback(project);

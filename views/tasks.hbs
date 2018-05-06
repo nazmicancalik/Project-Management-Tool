@@ -1,11 +1,11 @@
 <br>
-<label for="Tasks">All Tasks</label> 
+<label for="Tasks">All Tasks</label>
 <br>
 <ul class="list-group">
   {{#each tasks}}
-    <a href="/tasks/{{id}}" class="list-group-item">{{title}}</a>
+    <a href="/projects/{{project_id}}/tasks/{{id}}" class="list-group-item">{{title}}</a>
   {{/each}}
 </ul>
-<a type="button" class="btn btn-default btn-primary" href="/tasks/new">
+<a type="button" class="btn btn-default btn-primary" href="/projects/{{project_id}}/tasks/new">
   New Task
 </a>
