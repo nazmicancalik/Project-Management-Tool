@@ -1,0 +1,11 @@
+<br>
+<label for="Tasks">All Tasks</label> 
+<br>
+<ul class="list-group">
+  {{#each tasks}}
+    <a href="/tasks/{{id}}" class="list-group-item">{{title}}</a>
+  {{/each}}
+</ul>
+<a type="button" class="btn btn-default btn-primary" href="/tasks/new">
+  New Task
+</a>

@@ -1,6 +1,6 @@
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
-  return knex("task")
+  return knex("tasks")
     .del()
     .then(function() {
       const tasks = [
@@ -33,6 +33,6 @@ exports.seed = function(knex, Promise) {
           project_id: 3
         }
       ];
-      return knex("task").insert(tasks);
+      return knex("tasks").insert(tasks);
     });
 };

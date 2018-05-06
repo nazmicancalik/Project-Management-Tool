@@ -8,7 +8,7 @@ done
 */
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
-  return knex("project")
+  return knex("projects")
     .del()
     .then(function() {
       const projects = [
@@ -37,6 +37,6 @@ exports.seed = function(knex, Promise) {
           eta: 54
         }
       ];
-      return knex("project").insert(projects);
+      return knex("projects").insert(projects);
     });
 };

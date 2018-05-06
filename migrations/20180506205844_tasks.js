@@ -3,20 +3,28 @@ id
 title
 description
 start_date
-estimated_finish_time (eta)
+duration
+project_id
 done
 */
+
 exports.up = function(knex, Promise) {
-  return knex.schema.createTable("project", table => {
+  return knex.schema.createTable("tasks", table => {
     table.increments();
     table.text("title").notNullable();
     table.text("description");
     table.datetime("start_date");
-    table.integer("eta").notNullable();
+    table.integer("duration").notNullable();
+    table
+      .integer("project_id")
+      .notNullable()
+      .references("id")
+      .inTable("projects")
+      .onDelete("cascade");
     table.boolean("done").defaultTo(false);
   });
 };
 
 exports.down = function(knex, Promise) {
-  return knex.schema.dropTable("project");
+  return knex.schema.dropTable("tasks");
 };
