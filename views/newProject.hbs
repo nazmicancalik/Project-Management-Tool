@@ -1,0 +1,38 @@
+<div class="jumbotron">
+  <h5 style="text-align:center">Create a new Project</h5>
+  <br>
+  <form class="form" action="/projects" method="post">
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" class="form-control" id="title" placeholder="Enter a project title" name="title">
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea type="text" class="form-control" id="description" placeholder="Enter a description" name="description">
+      </textarea>
+    </div>
+    <div class="form-group">
+      <label for="description">Start Date</label>
+      <br>
+      <input id="datetime" type="datetime-local" class="form-control "name="start_date">
+    </div>
+    <div class="form-group">
+      <label for="Estimated Finish Time">Estimated Finish Time</label>
+      <input type="number" class="form-control" id="title" placeholder="Enter day" name="eta">
+    </div>
+    <div class="col-xl-1">
+      <div class="form-group">
+          <label>Done</label>
+          <div class="input-group-text">
+          <input id="done" name="done" type="checkbox" class="styled" aria-label="Checkbox for following text input">
+          </div>
+      </div>
+    </div>
+    <div class="col-xl-6">
+
+    </div>
+    <button type="submit" class="btn btn-default btn-success">
+      Create
+    </button>
+  </form>
+</div>
