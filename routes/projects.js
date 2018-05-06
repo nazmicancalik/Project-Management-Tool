@@ -30,6 +30,13 @@ router.get("/:id/tasks", (req, res) => {
   respondAndRenderTasks(id, res, "tasks");
 });
 
+// GET A SPECIFIC TASK
+router.get("/:project_id/tasks/:task_id", (req, res) => {
+  const id = req.params.project_id;
+  const task_id = req.params.task_id;
+  respondAndRenderSingleTask(task_id, res, "singleTask");
+});
+
 /* *************** POSTS ********************* */
 // CREATE A PROJECT
 router.post("/", (req, res) => {
@@ -68,6 +75,24 @@ function respondAndRenderTasks(id, res, viewName) {
       .then(tasks => {
         console.log(JSON.stringify(tasks, undefined, 2));
         res.render(viewName, { tasks: tasks });
+      });
+  } else {
+    res.status(500);
+    res.render("error", {
+      message: "Invalid id"
+    });
+  }
+}
+
+function respondAndRenderSingleTask(id, res, viewName) {
+  if (validId(id)) {
+    knex("tasks")
+      .select()
+      .where("id", id)
+      .first()
+      .then(task => {
+        console.log(JSON.stringify(task, undefined, 2));
+        res.render(viewName, task);
       });
   } else {
     res.status(500);
