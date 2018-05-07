@@ -16,7 +16,13 @@ router.get("/", function(req, res, next) {
 
 // ADD A NEW PROJECT
 router.get("/new", (req, res) => {
-  res.render("newProject");
+  // Fetch the managers first
+  knex("managers")
+    .select()
+    .then(managers => {
+      console.log(JSON.stringify(managers, undefined, 2));
+      res.render("newProject", { managers: managers });
+    });
 });
 
 // ADD A NEW TASK
@@ -48,11 +54,21 @@ router.get("/:project_id/tasks/:task_id", (req, res) => {
 // CREATE A PROJECT
 router.post("/", (req, res) => {
   validateProjectRenderError(req, res, project => {
+    console.log(req.body);
     knex("projects")
       .insert(project, "id")
       .then(ids => {
         const id = ids[0];
-        res.redirect(`/projects/${id}`);
+        return id;
+      })
+      .then(id => {
+        validateManagerProjectRelationRenderError(id, req, res, rels => {
+          knex("manager-project")
+            .insert(rels)
+            .then(() => {
+              res.redirect(`/projects/${id}`);
+            });
+        });
       });
   });
 });
@@ -133,6 +149,25 @@ function validateProjectRenderError(req, res, callback) {
     };
 
     callback(project);
+  } else {
+    res.status(500);
+    res.render("error", {
+      message: "Invalid todo"
+    });
+  }
+}
+
+function validateManagerProjectRelationRenderError(id, req, res, callback) {
+  if (id != "undefined") {
+    var rels = [];
+    for (var i = 0; i < req.body.managers.length; i++) {
+      let obj = {};
+      obj.manager_id = req.body.managers[i];
+      obj.project_id = id;
+      rels.push(obj);
+    }
+
+    callback(rels);
   } else {
     res.status(500);
     res.render("error", {

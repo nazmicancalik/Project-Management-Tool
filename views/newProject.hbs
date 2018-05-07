@@ -20,17 +20,21 @@
       <label for="Estimated Finish Time">Estimated Finish Time</label>
       <input type="number" class="form-control" id="title" placeholder="Enter day" name="eta">
     </div>
-    <div class="col-xl-1">
+
+    <div class="form-group">
+      <select name="managers" id="managers" class="form-control" multiple>
+      {{#each managers}}
+          <option value="{{id}}">{{name}}</option>
+      {{/each}}
+      </select>
+    </div>
+
       <div class="form-group">
           <label>Done</label>
           <div class="input-group-text">
           <input id="done" name="done" type="checkbox" class="styled" aria-label="Checkbox for following text input">
           </div>
       </div>
-    </div>
-    <div class="col-xl-6">
-
-    </div>
     <button type="submit" class="btn btn-default btn-success">
       Create
     </button>
