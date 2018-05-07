@@ -1,0 +1,8 @@
+<br>
+<label for="Tasks">All Tasks of Employee {{employee_id}}</label>
+<br>
+<ul class="list-group">
+  {{#each tasks}}
+    <a href="/employees/{{employee_id}}/tasks/{{id}}" class="list-group-item">{{title}}</a>
+  {{/each}}
+</ul>
