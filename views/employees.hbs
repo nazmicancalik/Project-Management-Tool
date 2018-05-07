@@ -1,0 +1,11 @@
+<br>
+<label for="Tasks">All Employees</label>
+<br>
+<ul class="list-group">
+  {{#each employees}}
+    <a href="/employees/{{id}}" class="list-group-item">Employee ID:{{id}} Name: {{name}}</a>
+  {{/each}}
+</ul>
+<a type="button" class="btn btn-default btn-primary" href="/employees/new">
+  New Employee
+</a>
