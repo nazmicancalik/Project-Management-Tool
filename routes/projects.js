@@ -189,6 +189,7 @@ router.delete("/:project_id", (req, res) => {
     });
 });
 
+/* TODO DELETE THIS
 router.delete("/:project_id/tasks/:task_id", (req, res) => {
   const project_id = req.params.project_id;
   const task_id = req.params.task_id;
@@ -200,6 +201,7 @@ router.delete("/:project_id/tasks/:task_id", (req, res) => {
       res.redirect(url);
     });
 });
+*/
 
 function respondAndRenderProject(id, res, viewName) {
   if (validId(id)) {
