@@ -4,7 +4,9 @@
   <hr class="my-4">
   <p>Approximate Finish Time: {{eta}}</p>
   <p>Done: {{done}}</p>
-  <p class="lead">
-    <a class="btn btn-primary btn-lg" href="/projects/{{id}}/tasks" role="button">See Tasks</a>
-  </p>
+  <div class="form-group">
+    <a class="btn btn-primary btn-md " href="/projects/{{id}}/tasks" role="button">Tasks</a>
+    <a class="btn btn-warning btn-md " href="/projects/{{id}}/edit" role="button">Edit</a>
+    <a class="btn btn-info btn-md " href="/projects/{{id}}/managers" role="button">Managers</a>
+  </div>
 </div>

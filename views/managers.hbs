@@ -1,0 +1,36 @@
+<br>
+<label for="Managers">This Projects Managers</label>
+<br>
+<ul class="list-group">
+  {{#each managers}}
+    <form class="form-control" action="/projects/{{project_id}}/managers/{{manager_id}}?_method=DELETE" method="post">
+      <div class="row">
+        <div class="col-md-9">
+          <a href="/managers/{{manager_id}}" class="list-group-item">{{name}}</a>
+        </div>
+        <div style="text-align:center" class="col-md-3">
+          <button style="margin-top:15px;"class="btn btn-danger btn-sm" type="submit">Delete</button>
+        </div>
+      </div>
+    </form>
+  {{/each}}
+</ul>
+<hr>
+<br>
+<label for="All Managers">Other Managers</label>
+<br>
+
+<ul class="list-group">
+  {{#each other_managers}}
+    <form class="form-control" action="/projects/{{@root.project}}/managers/{{id}}" method="post">
+      <div class="row">
+        <div class="col-md-9">
+          <a href="/managers/{{manager_id}}" class="list-group-item">{{name}}</a>
+        </div>
+        <div style="text-align:center" class="col-md-3">
+          <button style="margin-top:15px;"class="btn btn-primary btn-sm" type="submit">Add</button>
+        </div>
+      </div>
+    </form>
+  {{/each}}
+</ul>

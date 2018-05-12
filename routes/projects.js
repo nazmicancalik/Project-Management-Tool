@@ -37,6 +37,19 @@ router.get("/:id", (req, res) => {
   respondAndRenderProject(id, res, "singleProject");
 });
 
+router.get("/:id/edit", (req, res) => {
+  const project_id = req.params.id;
+  knex("projects")
+    .innerJoin("manager-project", "manager-project.project_id", "projects.id")
+    .select()
+    .where("project_id", project_id)
+    .first()
+    .then(project => {
+      console.log(JSON.stringify(project, undefined, 2));
+      res.render("editProject", { project: project });
+    });
+});
+
 // GET TASKS
 router.get("/:id/tasks", (req, res) => {
   const id = req.params.id;
@@ -48,6 +61,35 @@ router.get("/:project_id/tasks/:task_id", (req, res) => {
   const id = req.params.project_id;
   const task_id = req.params.task_id;
   respondAndRenderSingleTask(task_id, res, "singleTask");
+});
+
+// GET MANAGERS
+router.get("/:id/managers", (req, res) => {
+  const id = req.params.id;
+  knex("managers")
+    .innerJoin("manager-project", "manager-project.manager_id", "managers.id")
+    .select()
+    .where("project_id", id)
+    .then(managers => {
+      // console.log(JSON.stringify(managers, undefined, 2));
+      knex("managers")
+        .select()
+        .whereNotIn(
+          "id",
+          knex("manager-project")
+            .select("manager_id")
+            .where("project_id", id)
+        )
+        .then(other_managers => {
+          console.log(JSON.stringify(other_managers, undefined, 2));
+
+          res.render("managers", {
+            managers: managers,
+            other_managers: other_managers,
+            project: id
+          });
+        });
+    });
 });
 
 /* ************** POST ROUTES ************** */
@@ -73,6 +115,7 @@ router.post("/", (req, res) => {
   });
 });
 
+// Create a Task
 router.post("/:project_id/tasks", (req, res) => {
   const project_id = req.params.project_id;
   validateTaskRenderError(req, res, task => {
@@ -84,6 +127,38 @@ router.post("/:project_id/tasks", (req, res) => {
         res.redirect(`/projects/${project_id}/tasks/${id}`);
       });
   });
+});
+
+// Add a new manager
+router.post("/:project_id/managers/:manager_id", (req, res) => {
+  const manager_id = req.params.manager_id;
+  const project_id = req.params.project_id;
+  // console.log(JSON.stringify(req.body, undefined, 2));
+  const rel = {
+    manager_id: manager_id,
+    project_id: project_id
+  };
+  knex("manager-project")
+    .insert(rel)
+    .then(() => {
+      const url = "/projects/" + project_id + "/managers";
+      res.redirect(url);
+    });
+});
+
+/* ************** DELETE ROUTES ************** */
+router.delete("/:project_id/managers/:manager_id", (req, res) => {
+  const manager_id = req.params.manager_id;
+  const project_id = req.params.project_id;
+  console.log(JSON.stringify(req.body, undefined, 2));
+  knex("manager-project")
+    .where("manager_id", manager_id)
+    .andWhere("project_id", project_id)
+    .del()
+    .then(() => {
+      const url = "/projects/" + project_id + "/managers";
+      res.redirect(url);
+    });
 });
 
 function respondAndRenderProject(id, res, viewName) {
