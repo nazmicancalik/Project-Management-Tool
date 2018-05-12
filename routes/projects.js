@@ -161,6 +161,28 @@ router.delete("/:project_id/managers/:manager_id", (req, res) => {
     });
 });
 
+router.delete("/:project_id", (req, res) => {
+  const id = req.params.project_id;
+  knex("projects")
+    .where("id", id)
+    .del()
+    .then(() => {
+      res.redirect("/projects");
+    });
+});
+
+router.delete("/:project_id/tasks/:task_id", (req, res) => {
+  const project_id = req.params.project_id;
+  const task_id = req.params.task_id;
+  knex("tasks")
+    .where("id", task_id)
+    .del()
+    .then(() => {
+      const url = "/projects/" + project_id + "/tasks";
+      res.redirect(url);
+    });
+});
+
 function respondAndRenderProject(id, res, viewName) {
   if (validId(id)) {
     knex("projects")

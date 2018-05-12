@@ -1,11 +1,21 @@
 <br>
-<label for="Projects">All Projects</label>
+<div style="text-align:center; padding:10px; font-family: 'Pangolin';
+        font-size: 48px;">
+  <label for="Tasks">All Projects</label>
+  <hr>
+</div>
 <br>
 <ul class="list-group">
   {{#each projects}}
-    <a href="/projects/{{id}}" class="list-group-item">{{title}}</a>
+    <a href="/projects/{{id}}" style="background-color:#CC3232; color:white; opacity:0.90" class="list-group-item">{{title}}</a>
   {{/each}}
 </ul>
-<a type="button" class="btn btn-default btn-primary" href="/projects/new">
-  New Project
-</a>
+<div style="text-align:center; margin-top:10px" class="row">
+  <div class="col-md-5">
+  </div>
+  <div class="col-md-1">
+    <a class="btn btn-primary btn-md" href="/projects/new">
+      New Project
+    </a>
+  </div>
+</div>

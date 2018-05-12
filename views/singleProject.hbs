@@ -1,12 +1,28 @@
 <div class="jumbotron">
   <h1 class="display-4">{{title}}</h1>
-  <p class="lead">{{description}}</p>
+  <div class="row">
+    <div style="text-align:left; padding-top:20px" class="col-md-2">
+      <label for="Description">Description:</label>
+    </div>
+    <div class="col-md-10">
+      <div style="background-color:white; border-radius:25px; padding:10px" class="well">
+        <p class="lead">{{description}}</p>
+      </div>
+    </div>
+  </div>
   <hr class="my-4">
   <p>Approximate Finish Time: {{eta}}</p>
   <p>Done: {{done}}</p>
-  <div class="form-group">
-    <a class="btn btn-primary btn-md " href="/projects/{{id}}/tasks" role="button">Tasks</a>
-    <a class="btn btn-warning btn-md " href="/projects/{{id}}/edit" role="button">Edit</a>
-    <a class="btn btn-info btn-md " href="/projects/{{id}}/managers" role="button">Managers</a>
-  </div>
+  <form action="/projects/{{id}}?_method=DELETE" method="post">
+    <div class="row">
+      <div class="col-md-9">
+        <a class="btn btn-primary btn-md " href="/projects/{{id}}/tasks" role="button">Tasks</a>
+        <a class="btn btn-info btn-md " href="/projects/{{id}}/managers" role="button">Managers</a>
+        <a class="btn btn-warning btn-md " href="/projects/{{id}}/edit" role="button">Edit</a>
+      </div>
+      <div style="text-align:right" class="col-md-3">
+        <button style="margin-top:5px"class="btn btn-danger btn-md " href="/projects/{{id}}/edit" role="submit">Delete</button>
+      </div>
+    </div>
+  </form>
 </div>
