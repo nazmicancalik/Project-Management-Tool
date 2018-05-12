@@ -13,7 +13,7 @@ exports.up = function(knex, Promise) {
     table.increments();
     table.text("title").notNullable();
     table.text("description");
-    table.datetime("start_date");
+    table.date("start_date");
     table.integer("duration").notNullable();
     table
       .integer("project_id")

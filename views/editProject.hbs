@@ -4,17 +4,18 @@
   <form class="form" action="/projects?_PUT" method="post">
     <div class="form-group">
       <label for="title">Title {{title}}</label>
-      <input value="{{title}}" type="text" class="form-control" id="title" placeholder="Enter a project title" name="title" >
+      <input value="{{project.title}}" type="text" class="form-control" id="title" placeholder="Enter a project title" name="title" >
     </div>
     <div class="form-group">
       <label for="description">Description</label>
-      <textarea type="text" class="form-control" id="description" placeholder="Enter a description" name="description" value="{{description}}">
+      <textarea value="{{project.description}}" type="text" class="form-control" id="description" placeholder="Enter a description" name="description">
+        {{project.description}}
       </textarea>
     </div>
     <div class="form-group">
       <label for="description">Start Date</label>
       <br>
-      <input id="datetime" type="datetime-local" class="form-control "name="start_date" value="{{start_date}}">
+      <input id="date" type="date" class="form-control" name="start_date" value="{{project.start_date}}">
     </div>
     <div class="form-group">
       <label for="Estimated Finish Time">Estimated Finish Time</label>

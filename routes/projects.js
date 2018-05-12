@@ -37,15 +37,15 @@ router.get("/:id", (req, res) => {
   respondAndRenderProject(id, res, "singleProject");
 });
 
+// GET EDIT SCREEN
 router.get("/:id/edit", (req, res) => {
   const project_id = req.params.id;
   knex("projects")
-    .innerJoin("manager-project", "manager-project.project_id", "projects.id")
     .select()
-    .where("project_id", project_id)
+    .where("id", project_id)
     .first()
     .then(project => {
-      console.log(JSON.stringify(project, undefined, 2));
+      // console.log(JSON.stringify(project, undefined, 2));
       res.render("editProject", { project: project });
     });
 });
