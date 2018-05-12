@@ -1,25 +1,23 @@
 <div class="jumbotron">
   <h5 style="text-align:center">Edit the Project</h5>
   <br>
-  <form class="form" action="/projects?_PUT" method="post">
+  <form class="form" action="/projects/{{project.id}}?_PUT" method="POST">
     <div class="form-group">
-      <label for="title">Title {{title}}</label>
+      <label for="title">Title</label>
       <input value="{{project.title}}" type="text" class="form-control" id="title" placeholder="Enter a project title" name="title" >
     </div>
     <div class="form-group">
       <label for="description">Description</label>
-      <textarea value="{{project.description}}" type="text" class="form-control" id="description" placeholder="Enter a description" name="description">
-        {{project.description}}
-      </textarea>
+      <textarea value="{{project.description}}" type="text" class="form-control" id="description" placeholder="Enter a description" name="description">{{project.description}}</textarea>
     </div>
     <div class="form-group">
       <label for="description">Start Date</label>
       <br>
-      <input id="date" type="date" class="form-control" name="start_date" value="{{project.start_date}}">
+      <input id="date" type="date" class="form-control" name="start_date" value="{{getDate project.start_date}}">
     </div>
     <div class="form-group">
       <label for="Estimated Finish Time">Estimated Finish Time</label>
-      <input type="number" class="form-control" id="title" placeholder="Enter day" name="eta" value="{{eta}}">
+      <input type="number" class="form-control" id="title" placeholder="Enter day" name="eta" value="{{project.eta}}">
     </div>
       <div class="form-group">
           <label>Done</label>
@@ -27,7 +25,7 @@
           <input id="done" name="done" type="checkbox" class="styled" aria-label="Checkbox for following text input">
           </div>
       </div>
-    <button type="submit" class="btn btn-default btn-success">
+    <button type="submit" role="button" id="save" class="btn btn-md btn-danger">
       Save Changes
     </button>
   </form>

@@ -11,7 +11,7 @@ exports.up = function(knex, Promise) {
     table.increments();
     table.text("title").notNullable();
     table.text("description");
-    table.datetime("start_date");
+    table.date("start_date");
     table.integer("eta").notNullable();
     table.boolean("done").defaultTo(false);
   });

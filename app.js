@@ -21,6 +21,18 @@ hbs.registerPartials(__dirname + "/views/partials");
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
 
+hbs.registerHelper("getDate", function(date) {
+  var d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear();
+
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
+
+  return [year, month, day].join("-");
+});
+
 app.use(methodOverride("_method"));
 app.use(logger("dev"));
 app.use(express.json());

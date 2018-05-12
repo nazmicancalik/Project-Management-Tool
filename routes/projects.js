@@ -82,13 +82,31 @@ router.get("/:id/managers", (req, res) => {
         )
         .then(other_managers => {
           console.log(JSON.stringify(other_managers, undefined, 2));
-
           res.render("managers", {
             managers: managers,
             other_managers: other_managers,
             project: id
           });
         });
+    });
+});
+
+/* ************** PUT ROUTES ************** */
+router.post("/:project_id", (req, res) => {
+  const project_id = req.params.project_id;
+  console.log(JSON.stringify(req.body, undefined, 2));
+  const project = {
+    title: req.body.title,
+    description: req.body.description,
+    start_date: req.body.start_date,
+    eta: req.body.eta
+  };
+  knex("projects")
+    .where("id", project_id)
+    .update(project, "id")
+    .then(() => {
+      const url = "/projects/" + project_id;
+      res.redirect(url);
     });
 });
 
