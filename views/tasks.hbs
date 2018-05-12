@@ -13,9 +13,11 @@
 <div style="text-align:center; margin-top:10px" class="row">
   <div class="col-md-5">
   </div>
-  <div class="col-md-1">
-    <a class="btn btn-primary btn-md" href="/projects/{{project_id}}/tasks/new">
-      New Task
-    </a>
-  </div>
+  {{#if canCreate}}
+    <div class="col-md-1">
+      <a class="btn btn-primary btn-md" href="/projects/{{project_id}}/tasks/new">
+        New Task
+      </a>
+    </div>
+  {{/if}}
 </div>

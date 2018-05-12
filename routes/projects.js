@@ -207,7 +207,7 @@ function respondAndRenderTasks(id, res, viewName) {
       .where("project_id", id)
       .then(tasks => {
         console.log(JSON.stringify(tasks, undefined, 2));
-        res.render(viewName, { tasks: tasks, project_id: id });
+        res.render(viewName, { tasks: tasks, project_id: id, canCreate: true });
       });
   } else {
     res.status(500);
