@@ -56,13 +56,14 @@ router.get("/:id/tasks", (req, res) => {
   respondAndRenderTasks(id, res, "tasks");
 });
 
+/*TODO delete this
 // GET A SPECIFIC TASK
 router.get("/:project_id/tasks/:task_id", (req, res) => {
   const id = req.params.project_id;
   const task_id = req.params.task_id;
   respondAndRenderSingleTask(task_id, res, "singleTask");
 });
-
+*/
 // GET MANAGERS
 router.get("/:id/managers", (req, res) => {
   const id = req.params.id;
@@ -142,7 +143,7 @@ router.post("/:project_id/tasks", (req, res) => {
       .insert(task, "id")
       .then(ids => {
         const id = ids[0];
-        res.redirect(`/projects/${project_id}/tasks/${id}`);
+        res.redirect(`/tasks/${id}`);
       });
   });
 });
