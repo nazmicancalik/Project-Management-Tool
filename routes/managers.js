@@ -13,6 +13,38 @@ router.get("/", (req, res) => {
     });
 });
 
+// New Manager
+router.get("/new", (req, res) => {
+  res.render("newManager");
+});
+
+// Get Edit Manager Page
+router.get("/:id/edit", (req, res) => {
+  const id = req.params.id;
+  knex("managers")
+    .select()
+    .where("id", id)
+    .first()
+    .then(manager => {
+      // console.log(JSON.stringify(project, undefined, 2));
+      res.render("editManager", { manager: manager });
+    });
+});
+
+/* ************* POST ROUTES ************* */
+// Create a new Manager
+router.post("/", (req, res) => {
+  validateManager(req, res, manager => {
+    knex("managers")
+      .insert(manager, "id")
+      .then(ids => {
+        const id = ids[0];
+        const url = "/managers/" + id;
+        res.redirect(url);
+      });
+  });
+});
+
 /* ************* PUT ROUTES ************* */
 // Edit Specific Manager
 router.put("/:id", (req, res) => {
@@ -63,5 +95,32 @@ router.delete("/:id", (req, res) => {
       res.redirect("/managers");
     });
 });
+
+function validateManager(req, res, callback) {
+  if (validManager(req.body)) {
+    let manager = {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password
+    };
+    callback(manager);
+  } else {
+    res.status(500);
+    res.render("error", {
+      message: "Invalid Manager"
+    });
+  }
+}
+
+function validManager(manager) {
+  return (
+    typeof manager.name == "string" &&
+    manager.name.trim() != "" &&
+    typeof manager.email == "string" &&
+    manager.email.trim() != "" &&
+    typeof manager.password == "string" &&
+    manager.password.trim() != ""
+  );
+}
 
 module.exports = router;
