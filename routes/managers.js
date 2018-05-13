@@ -13,6 +13,25 @@ router.get("/", (req, res) => {
     });
 });
 
+/* ************* PUT ROUTES ************* */
+// Edit Specific Manager
+router.put("/:id", (req, res) => {
+  const id = req.params.id;
+  // console.log(JSON.stringify(req.body, undefined, 2));
+  const manager = {
+    name: req.body.name,
+    email: req.body.description,
+    password: req.body.password
+  };
+  knex("managers")
+    .where("id", id)
+    .update(manager, "id")
+    .then(() => {
+      const url = "/managers/" + id;
+      res.redirect(url);
+    });
+});
+
 // Get a specific manager
 router.get("/:id", (req, res) => {
   const id = req.params.id;

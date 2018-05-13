@@ -35,6 +35,35 @@ router.get("/:id/edit", (req, res) => {
     });
 });
 
+/* ************* POST ROUTES ************* */
+router.post("/", (req, res) => {
+  console.log(JSON.stringify(req.body, undefined, 2));
+  const task = {
+    title: req.body.title,
+    description: req.body.description,
+    start_date: req.body.start_date,
+    duration: req.body.duration,
+    project_id: req.body.project_id,
+    done: false
+  };
+  console.log(req.body.employees);
+  knex("tasks")
+    .insert(task, "id")
+    .then(ids => {
+      const id = ids[0];
+      return id;
+    })
+    .then(id => {
+      validateEmployeeTaskRelationRenderError(id, req, res, rels => {
+        knex("employee-task")
+          .insert(rels)
+          .then(() => {
+            res.redirect(`/tasks/${id}`);
+          });
+      });
+    });
+});
+
 /* ************* PUT ROUTES ************* */
 router.put("/:id", (req, res) => {
   const id = req.params.id;
@@ -67,4 +96,22 @@ router.delete("/:task_id", (req, res) => {
     });
 });
 
+function validateEmployeeTaskRelationRenderError(id, req, res, callback) {
+  if (id != "undefined") {
+    var rels = [];
+    for (var i = 0; i < req.body.employees.length; i++) {
+      let obj = {};
+      obj.employee_id = req.body.employees[i];
+      obj.task_id = id;
+      rels.push(obj);
+    }
+
+    callback(rels);
+  } else {
+    res.status(500);
+    res.render("error", {
+      message: "Invalid index"
+    });
+  }
+}
 module.exports = router;

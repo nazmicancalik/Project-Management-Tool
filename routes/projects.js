@@ -28,7 +28,11 @@ router.get("/new", (req, res) => {
 // ADD A NEW TASK
 router.get("/:id/tasks/new", (req, res) => {
   const id = req.params.id;
-  res.render("newTask", { project_id: id });
+  knex("employees")
+    .select()
+    .then(employees => {
+      res.render("newTask", { project_id: id, employees: employees });
+    });
 });
 
 // GET A SPECIFIC PROJECT

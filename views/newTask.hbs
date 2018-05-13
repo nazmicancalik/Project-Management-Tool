@@ -1,7 +1,7 @@
 <div class="jumbotron">
   <h5 style="text-align:center">Create a new Task</h5>
   <br>
-  <form class="form" action="/projects/{{project_id}}/tasks" method="post">
+  <form class="form" action="/tasks" method="post">
     <div class="form-group">
       <label for="title">Title</label>
       <input type="text" class="form-control" id="title" placeholder="Enter the task title" name="title">
@@ -21,7 +21,14 @@
     </div>
     <div class="form-group">
       <label for="ProjectId">Project ID</label>
-      <input type="number" class="form-control" id="project_id" name="project_id" value="{{project_id}}" disabled>
+      <input type="number" class="form-control" id="project_id" name="project_id" value="{{project_id}}">
+    </div>
+    <div class="form-group">
+      <select name="employees" id="employees" class="form-control" multiple>
+      {{#each employees}}
+          <option value="{{id}}">{{name}}</option>
+      {{/each}}
+      </select>
     </div>
     <div class="col-xl-1">
       <div class="form-group">
@@ -38,3 +45,4 @@
     </button>
   </form>
 </div>
+<!--<form class="form" action="/projects/{{project_id}}/tasks" method="post">-->
