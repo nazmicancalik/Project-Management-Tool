@@ -7,8 +7,15 @@
   <p>Project ID: {{project_id}}</p>
   <p>Done: {{done}}</p>
   <form class="form-group" action="/tasks/{{id}}?_method=DELETE" method="post">
-    <a class="btn btn-warning btn-md " href="/tasks/{{id}}/edit" role="button">Edit</a>
-    <a class="btn btn-primary btn-md " href="/tasks/{{id}}/employees" role="button">Employees</a>
-    <button style="margin-top:5px;" class="btn btn-danger btn-md" type="submit" name="button" role="button">Delete</button>
+    <div class="row">
+      <div class="col-md-9">
+        <a class="btn btn-warning btn-md " href="/tasks/{{id}}/edit" role="button">Edit</a>
+        <a class="btn btn-primary btn-md " href="/tasks/{{id}}/employees" role="button">Employees</a>
+        <a class="btn btn-info btn-md " href="/projects/{{project_id}}" role="button">Project Page</a>
+      </div>
+      <div class="col-md-3">
+        <button style="margin-top:5px;" class="btn btn-danger btn-md" type="submit" name="button" role="button">Delete</button>
+      </div>
+    </div>
   </form>
 </div>
