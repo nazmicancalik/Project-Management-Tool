@@ -5,7 +5,7 @@ const knex = require("../db/knex");
 
 /* ************* GET ROUTES ************* */
 // Get all managers
-router.get("/", (req, res) => {
+router.get("/", adminAuthenticationMiddleware(), (req, res) => {
   knex("managers")
     .select()
     .then(managers => {
@@ -14,12 +14,12 @@ router.get("/", (req, res) => {
 });
 
 // New Manager
-router.get("/new", (req, res) => {
+router.get("/new", adminAuthenticationMiddleware(), (req, res) => {
   res.render("newManager");
 });
 
 // Get Edit Manager Page
-router.get("/:id/edit", (req, res) => {
+router.get("/:id/edit", adminAuthenticationMiddleware(), (req, res) => {
   const id = req.params.id;
   knex("managers")
     .select()
@@ -33,7 +33,7 @@ router.get("/:id/edit", (req, res) => {
 
 /* ************* POST ROUTES ************* */
 // Create a new Manager
-router.post("/", (req, res) => {
+router.post("/", adminAuthenticationMiddleware(), (req, res) => {
   validateManager(req, res, manager => {
     knex("managers")
       .insert(manager, "id")
@@ -47,7 +47,7 @@ router.post("/", (req, res) => {
 
 /* ************* PUT ROUTES ************* */
 // Edit Specific Manager
-router.put("/:id", (req, res) => {
+router.put("/:id", adminAuthenticationMiddleware(), (req, res) => {
   const id = req.params.id;
   // console.log(JSON.stringify(req.body, undefined, 2));
   const manager = {
@@ -65,7 +65,7 @@ router.put("/:id", (req, res) => {
 });
 
 // Get a specific manager
-router.get("/:id", (req, res) => {
+router.get("/:id", adminAuthenticationMiddleware(), (req, res) => {
   const id = req.params.id;
   knex("managers")
     .select()
@@ -80,13 +80,16 @@ router.get("/:id", (req, res) => {
         )
         .where("manager_id", id)
         .then(projects => {
-          res.render("singleManager", { manager: manager, projects: projects });
+          res.render("singleManager", {
+            manager: manager,
+            projects: projects
+          });
         });
     });
 });
 
 /* ************* DELETE ROUTES ************* */
-router.delete("/:id", (req, res) => {
+router.delete("/:id", adminAuthenticationMiddleware(), (req, res) => {
   const id = req.params.id;
   knex("managers")
     .where("id", id)
@@ -121,6 +124,22 @@ function validManager(manager) {
     typeof manager.password == "string" &&
     manager.password.trim() != ""
   );
+}
+
+function adminAuthenticationMiddleware() {
+  return (req, res, next) => {
+    console.log(
+      `req.session.passport.user: ${JSON.stringify(
+        req.session.passport,
+        undefined,
+        2
+      )}`
+    );
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.redirect("/adminLogin");
+  };
 }
 
 module.exports = router;

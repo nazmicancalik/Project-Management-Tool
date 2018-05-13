@@ -4,7 +4,7 @@ var router = express.Router();
 const knex = require("../db/knex");
 
 /* ************* GET ROUTES ************* */
-router.get("/", (req, res) => {
+router.get("/", adminAuthenticationMiddleware(), (req, res) => {
   knex("tasks")
     .select()
     .then(tasks => {
@@ -12,7 +12,7 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", adminAuthenticationMiddleware(), (req, res) => {
   const id = req.params.id;
   knex("tasks")
     .select()
@@ -23,7 +23,7 @@ router.get("/:id", (req, res) => {
     });
 });
 // GET EDIT SCREEN
-router.get("/:id/edit", (req, res) => {
+router.get("/:id/edit", adminAuthenticationMiddleware(), (req, res) => {
   const id = req.params.id;
   knex("tasks")
     .select()
@@ -37,7 +37,7 @@ router.get("/:id/edit", (req, res) => {
 
 // Get Employees
 // GET MANAGERS
-router.get("/:id/employees", (req, res) => {
+router.get("/:id/employees", adminAuthenticationMiddleware(), (req, res) => {
   const id = req.params.id;
   knex("employees")
     .innerJoin("employee-task", "employee-task.employee_id", "employees.id")
@@ -64,7 +64,7 @@ router.get("/:id/employees", (req, res) => {
     });
 });
 /* ************* POST ROUTES ************* */
-router.post("/", (req, res) => {
+router.post("/", adminAuthenticationMiddleware(), (req, res) => {
   console.log(JSON.stringify(req.body, undefined, 2));
   const task = {
     title: req.body.title,
@@ -93,24 +93,28 @@ router.post("/", (req, res) => {
 });
 
 // Add a new employee
-router.post("/:task_id/employees/:employee_id", (req, res) => {
-  const employee_id = req.params.employee_id;
-  const task_id = req.params.task_id;
-  // console.log(JSON.stringify(req.body, undefined, 2));
-  const rel = {
-    employee_id: employee_id,
-    task_id: task_id
-  };
-  knex("employee-task")
-    .insert(rel)
-    .then(() => {
-      const url = "/tasks/" + task_id + "/employees";
-      res.redirect(url);
-    });
-});
+router.post(
+  "/:task_id/employees/:employee_id",
+  adminAuthenticationMiddleware(),
+  (req, res) => {
+    const employee_id = req.params.employee_id;
+    const task_id = req.params.task_id;
+    // console.log(JSON.stringify(req.body, undefined, 2));
+    const rel = {
+      employee_id: employee_id,
+      task_id: task_id
+    };
+    knex("employee-task")
+      .insert(rel)
+      .then(() => {
+        const url = "/tasks/" + task_id + "/employees";
+        res.redirect(url);
+      });
+  }
+);
 
 /* ************* PUT ROUTES ************* */
-router.put("/:id", (req, res) => {
+router.put("/:id", adminAuthenticationMiddleware(), (req, res) => {
   const id = req.params.id;
   // console.log(JSON.stringify(req.body, undefined, 2));
   const task = {
@@ -130,7 +134,7 @@ router.put("/:id", (req, res) => {
 });
 
 /* ************* DELETE ROUTES ************* */
-router.delete("/:task_id", (req, res) => {
+router.delete("/:task_id", adminAuthenticationMiddleware(), (req, res) => {
   const task_id = req.params.task_id;
   knex("tasks")
     .where("id", task_id)
@@ -142,19 +146,23 @@ router.delete("/:task_id", (req, res) => {
 });
 
 // Delete the specific manager-project relation
-router.delete("/:task_id/employees/:employee_id", (req, res) => {
-  const employee_id = req.params.employee_id;
-  const task_id = req.params.task_id;
-  console.log(JSON.stringify(req.body, undefined, 2));
-  knex("employee-task")
-    .where("employee_id", employee_id)
-    .andWhere("task_id", task_id)
-    .del()
-    .then(() => {
-      const url = "/tasks/" + task_id + "/employees";
-      res.redirect(url);
-    });
-});
+router.delete(
+  "/:task_id/employees/:employee_id",
+  adminAuthenticationMiddleware(),
+  (req, res) => {
+    const employee_id = req.params.employee_id;
+    const task_id = req.params.task_id;
+    console.log(JSON.stringify(req.body, undefined, 2));
+    knex("employee-task")
+      .where("employee_id", employee_id)
+      .andWhere("task_id", task_id)
+      .del()
+      .then(() => {
+        const url = "/tasks/" + task_id + "/employees";
+        res.redirect(url);
+      });
+  }
+);
 
 function validateEmployeeTaskRelationRenderError(id, req, res, callback) {
   if (id != "undefined") {
@@ -173,5 +181,37 @@ function validateEmployeeTaskRelationRenderError(id, req, res, callback) {
       message: "Invalid index"
     });
   }
+}
+
+function authenticationMiddleware() {
+  return (req, res, next) => {
+    console.log(
+      `req.session.passport.user: ${JSON.stringify(
+        req.session.passport,
+        undefined,
+        2
+      )}`
+    );
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.redirect("/adminLogin");
+  };
+}
+
+function adminAuthenticationMiddleware() {
+  return (req, res, next) => {
+    console.log(
+      `req.session.passport.user: ${JSON.stringify(
+        req.session.passport,
+        undefined,
+        2
+      )}`
+    );
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.redirect("/adminLogin");
+  };
 }
 module.exports = router;

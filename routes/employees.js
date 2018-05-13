@@ -5,7 +5,7 @@ const knex = require("../db/knex");
 
 /* This Router Starts from /projects */
 /* ************** GET ROUTES ************** */
-router.get("/", function(req, res, next) {
+router.get("/", adminAuthenticationMiddleware(), function(req, res, next) {
   knex("employees")
     .select()
     .then(employees => {
@@ -15,25 +15,25 @@ router.get("/", function(req, res, next) {
 });
 
 // ADD A NEW EMPLOYEE
-router.get("/new", (req, res) => {
+router.get("/new", adminAuthenticationMiddleware(), (req, res) => {
   res.render("newEmployee");
 });
 
 // GET A SPECIFIC EMPLOYEE
-router.get("/:id", (req, res) => {
+router.get("/:id", adminAuthenticationMiddleware(), (req, res) => {
   const id = req.params.id;
   respondAndRenderEmployee(id, res, "singleEmployee");
 });
 
 // GET TASKS
-router.get("/:id/tasks", (req, res) => {
+router.get("/:id/tasks", adminAuthenticationMiddleware(), (req, res) => {
   const id = req.params.id;
   respondAndRenderTasks(id, res, "employeeTasks");
 });
 
 /* ************** POST ROUTES ************** */
 // CREATE AN EMPLOYEE
-router.post("/", (req, res) => {
+router.post("/", adminAuthenticationMiddleware(), (req, res) => {
   validateEmployeeRenderError(req, res, employee => {
     knex("employees")
       .insert(employee, "id")
@@ -96,5 +96,21 @@ function respondAndRenderTasks(id, res, viewName) {
 
 function validId(id) {
   return !isNaN(id);
+}
+
+function adminAuthenticationMiddleware() {
+  return (req, res, next) => {
+    console.log(
+      `req.session.passport.user: ${JSON.stringify(
+        req.session.passport,
+        undefined,
+        2
+      )}`
+    );
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.redirect("/adminLogin");
+  };
 }
 module.exports = router;

@@ -6,7 +6,7 @@ var LocalStrategy = require("passport-local").Strategy;
 const knex = require("../db/knex");
 
 /* GET home page. */
-router.get("/", function(req, res, next) {
+router.get("/", adminAuthenticationMiddleware(), function(req, res, next) {
   res.render("index", { title: "Express" });
 });
 
@@ -39,24 +39,40 @@ passport.use(
         if (admin.password !== password) {
           return done(null, false, { message: "Incorrect Password" });
         }
-        return done(null, admin);
+        return done(null, { id: admin.id, isAdmin: true });
       });
   })
 );
 
 passport.serializeUser((admin, done) => {
   console.log("Serialize girdik");
-  done(null, admin.id);
+  done(null, admin);
 });
 
-passport.deserializeUser((id, done) => {
+passport.deserializeUser((admin, done) => {
   console.log("Deserialize girdik");
   knex("admins")
     .select()
-    .where("id", id)
+    .where("id", admin.id)
     .first()
     .then(admin => {
-      done(null, admin.id);
+      done(null, admin);
     });
 });
+
+function adminAuthenticationMiddleware() {
+  return (req, res, next) => {
+    console.log(
+      `req.session.passport.user: ${JSON.stringify(
+        req.session.passport,
+        undefined,
+        2
+      )}`
+    );
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.redirect("/adminLogin");
+  };
+}
 module.exports = router;
