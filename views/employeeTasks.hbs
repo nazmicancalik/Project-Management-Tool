@@ -1,8 +1,23 @@
 <br>
-<label for="Tasks">All Tasks of Employee {{employee_id}}</label>
+<div style="text-align:center; padding:10px; font-family: 'Pangolin';
+        font-size: 48px;">
+  <label for="Tasks">All Tasks of Employee {{employee_id}}</label>
+  <hr>
+</div>
 <br>
 <ul class="list-group">
   {{#each tasks}}
-    <a href="/employees/{{employee_id}}/tasks/{{id}}" class="list-group-item">{{title}}</a>
+    <a href="/tasks/{{task_id}}" style="background-color:#CC3232; color:white; opacity:0.90" class="list-group-item">{{title}}</a>
   {{/each}}
 </ul>
+<div style="text-align:center; margin-top:10px" class="row">
+  <div class="col-md-5">
+  </div>
+  {{#if canCreate}}
+    <div class="col-md-1">
+      <a class="btn btn-primary btn-md" href="/tasks/{{task_id}}/employees/new">
+        New Task
+      </a>
+    </div>
+  {{/if}}
+</div>

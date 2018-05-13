@@ -35,6 +35,34 @@ router.get("/:id/edit", (req, res) => {
     });
 });
 
+// Get Employees
+// GET MANAGERS
+router.get("/:id/employees", (req, res) => {
+  const id = req.params.id;
+  knex("employees")
+    .innerJoin("employee-task", "employee-task.employee_id", "employees.id")
+    .select()
+    .where("task_id", id)
+    .then(employees => {
+      // console.log(JSON.stringify(managers, undefined, 2));
+      knex("employees")
+        .select()
+        .whereNotIn(
+          "id",
+          knex("employee-task")
+            .select("employee_id")
+            .where("task_id", id)
+        )
+        .then(other_employees => {
+          console.log(JSON.stringify(other_employees, undefined, 2));
+          res.render("employeeTask", {
+            employees: employees,
+            other_employees: other_employees,
+            task: id
+          });
+        });
+    });
+});
 /* ************* POST ROUTES ************* */
 router.post("/", (req, res) => {
   console.log(JSON.stringify(req.body, undefined, 2));
@@ -61,6 +89,23 @@ router.post("/", (req, res) => {
             res.redirect(`/tasks/${id}`);
           });
       });
+    });
+});
+
+// Add a new employee
+router.post("/:task_id/employees/:employee_id", (req, res) => {
+  const employee_id = req.params.employee_id;
+  const task_id = req.params.task_id;
+  // console.log(JSON.stringify(req.body, undefined, 2));
+  const rel = {
+    employee_id: employee_id,
+    task_id: task_id
+  };
+  knex("employee-task")
+    .insert(rel)
+    .then(() => {
+      const url = "/tasks/" + task_id + "/employees";
+      res.redirect(url);
     });
 });
 
@@ -92,6 +137,21 @@ router.delete("/:task_id", (req, res) => {
     .del("project_id")
     .then(project_id => {
       const url = "/projects/" + project_id + "/tasks";
+      res.redirect(url);
+    });
+});
+
+// Delete the specific manager-project relation
+router.delete("/:task_id/employees/:employee_id", (req, res) => {
+  const employee_id = req.params.employee_id;
+  const task_id = req.params.task_id;
+  console.log(JSON.stringify(req.body, undefined, 2));
+  knex("employee-task")
+    .where("employee_id", employee_id)
+    .andWhere("task_id", task_id)
+    .del()
+    .then(() => {
+      const url = "/tasks/" + task_id + "/employees";
       res.redirect(url);
     });
 });

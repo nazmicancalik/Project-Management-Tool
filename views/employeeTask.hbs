@@ -1,0 +1,42 @@
+<br>
+<div style="text-align:center; padding:10px; font-family: 'Pangolin';
+        font-size: 22px;">
+  <label for="Managers">Assigned Employees</label>
+</div>
+<br>
+<ul class="list-group">
+  {{#each employees}}
+    <form class="form-control" action="/tasks/{{@root.task}}/employees/{{employee_id}}?_method=DELETE" method="post">
+      <div class="row">
+        <div class="col-md-9">
+          <a href="/employees/{{employee_id}}" class="list-group-item">{{name}}</a>
+        </div>
+        <div style="text-align:center" class="col-md-3">
+          <button style="margin-top:15px;"class="btn btn-danger btn-sm" type="submit">Unassign</button>
+        </div>
+      </div>
+    </form>
+  {{/each}}
+</ul>
+<hr>
+<br>
+  <div style="text-align:center; padding:10px; font-family: 'Pangolin';
+          font-size: 22px;">
+    <label for="Project Managers">Unassigned Employees</label>
+  </div>
+<br>
+
+<ul class="list-group">
+  {{#each other_employees}}
+    <form class="form-control" action="/tasks/{{@root.task}}/employees/{{id}}" method="post">
+      <div class="row">
+        <div class="col-md-9">
+          <a href="/employees/{{employee_id}}" class="list-group-item">{{name}}</a>
+        </div>
+        <div style="text-align:center" class="col-md-3">
+          <button style="margin-top:15px;"class="btn btn-primary btn-sm" type="submit">Assign</button>
+        </div>
+      </div>
+    </form>
+  {{/each}}
+</ul>

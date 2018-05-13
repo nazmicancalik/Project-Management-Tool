@@ -170,6 +170,7 @@ router.post("/:project_id/managers/:manager_id", (req, res) => {
 });
 
 /* ************** DELETE ROUTES ************** */
+// Delete the specific manager-project relation
 router.delete("/:project_id/managers/:manager_id", (req, res) => {
   const manager_id = req.params.manager_id;
   const project_id = req.params.project_id;
