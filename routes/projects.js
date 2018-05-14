@@ -339,7 +339,9 @@ function adminAuthenticationMiddleware() {
       )}`
     );
     if (req.isAuthenticated()) {
-      return next();
+      if (req.session.passport.user.isAdmin) {
+        return next();
+      }
     }
     res.redirect("/adminLogin");
   };
