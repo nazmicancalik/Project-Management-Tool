@@ -15,6 +15,7 @@ router.get("/adminLogin", function(req, res, next) {
 });
 
 /* ************ POST ROUTES ************ */
+// Admin Login
 router.post(
   "/adminLogin",
   passport.authenticate("local", {
@@ -25,6 +26,12 @@ router.post(
     res.redirect("/");
   }
 );
+
+// Logout
+router.get("/logout", (req, res) => {
+  req.logout();
+  res.redirect("/adminLogin");
+});
 
 passport.use(
   new LocalStrategy((username, password, done) => {
