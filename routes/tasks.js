@@ -4,7 +4,7 @@ var router = express.Router();
 const knex = require("../db/knex");
 
 /* ************* GET ROUTES ************* */
-router.get("/", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/", admin(), (req, res) => {
   knex("tasks")
     .select()
     .then(tasks => {
@@ -12,7 +12,7 @@ router.get("/", adminAuthenticationMiddleware(), (req, res) => {
     });
 });
 
-router.get("/:id", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/:id", adminAndManager(), (req, res) => {
   const id = req.params.id;
   knex("tasks")
     .select()
@@ -23,7 +23,7 @@ router.get("/:id", adminAuthenticationMiddleware(), (req, res) => {
     });
 });
 // GET EDIT SCREEN
-router.get("/:id/edit", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/:id/edit", adminAndManager(), (req, res) => {
   const id = req.params.id;
   knex("tasks")
     .select()
@@ -36,8 +36,7 @@ router.get("/:id/edit", adminAuthenticationMiddleware(), (req, res) => {
 });
 
 // Get Employees
-// GET MANAGERS
-router.get("/:id/employees", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/:id/employees", adminAndManager(), (req, res) => {
   const id = req.params.id;
   knex("employees")
     .innerJoin("employee-task", "employee-task.employee_id", "employees.id")
@@ -64,7 +63,7 @@ router.get("/:id/employees", adminAuthenticationMiddleware(), (req, res) => {
     });
 });
 /* ************* POST ROUTES ************* */
-router.post("/", adminAuthenticationMiddleware(), (req, res) => {
+router.post("/", (req, res) => {
   console.log(JSON.stringify(req.body, undefined, 2));
   const task = {
     title: req.body.title,
@@ -95,7 +94,7 @@ router.post("/", adminAuthenticationMiddleware(), (req, res) => {
 // Add a new employee
 router.post(
   "/:task_id/employees/:employee_id",
-  adminAuthenticationMiddleware(),
+  adminAndManager(),
   (req, res) => {
     const employee_id = req.params.employee_id;
     const task_id = req.params.task_id;
@@ -114,7 +113,7 @@ router.post(
 );
 
 /* ************* PUT ROUTES ************* */
-router.put("/:id", adminAuthenticationMiddleware(), (req, res) => {
+router.put("/:id", adminAndManager(), (req, res) => {
   const id = req.params.id;
   // console.log(JSON.stringify(req.body, undefined, 2));
   const task = {
@@ -134,7 +133,7 @@ router.put("/:id", adminAuthenticationMiddleware(), (req, res) => {
 });
 
 /* ************* DELETE ROUTES ************* */
-router.delete("/:task_id", adminAuthenticationMiddleware(), (req, res) => {
+router.delete("/:task_id", adminAndManager(), (req, res) => {
   const task_id = req.params.task_id;
   knex("tasks")
     .where("id", task_id)
@@ -148,7 +147,7 @@ router.delete("/:task_id", adminAuthenticationMiddleware(), (req, res) => {
 // Delete the specific manager-project relation
 router.delete(
   "/:task_id/employees/:employee_id",
-  adminAuthenticationMiddleware(),
+  adminAndManager(),
   (req, res) => {
     const employee_id = req.params.employee_id;
     const task_id = req.params.task_id;
@@ -183,7 +182,7 @@ function validateEmployeeTaskRelationRenderError(id, req, res, callback) {
   }
 }
 
-function authenticationMiddleware() {
+function admin() {
   return (req, res, next) => {
     console.log(
       `req.session.passport.user: ${JSON.stringify(
@@ -192,14 +191,14 @@ function authenticationMiddleware() {
         2
       )}`
     );
-    if (req.isAuthenticated()) {
+    if (req.isAuthenticated() && req.session.passport.user.isAdmin) {
       return next();
     }
     res.redirect("/adminLogin");
   };
 }
 
-function adminAuthenticationMiddleware() {
+function adminAndManager() {
   return (req, res, next) => {
     console.log(
       `req.session.passport.user: ${JSON.stringify(
@@ -209,9 +208,38 @@ function adminAuthenticationMiddleware() {
       )}`
     );
     if (req.isAuthenticated()) {
-      return next();
+      if (req.session.passport.user.isAdmin) {
+        return next();
+      } else {
+        const manager_id = req.session.passport.user.id;
+        knex("tasks")
+          .select()
+          .whereIn(
+            "project_id",
+            knex("projects")
+              .select("project_id")
+              .innerJoin(
+                "manager-project",
+                "projects.id",
+                "manager-project.project_id"
+              )
+              .where("manager_id", manager_id)
+          )
+          .then(tasks => {
+            let task_id;
+            if (req.params.id) {
+              task_id = req.params.id;
+            } else {
+              task_id = req.params.task_id;
+            }
+            for (var i = 0; i < tasks.length; i++) {
+              if (tasks[i].id == task_id) {
+                return next();
+              }
+            }
+          });
+      }
     }
-    res.redirect("/adminLogin");
   };
 }
 module.exports = router;

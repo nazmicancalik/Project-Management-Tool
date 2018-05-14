@@ -5,7 +5,7 @@ const knex = require("../db/knex");
 
 /* This Router Starts from /projects */
 /* ************** GET ROUTES ************** */
-router.get("/", adminAuthenticationMiddleware(), function(req, res, next) {
+router.get("/", admin(), function(req, res, next) {
   knex("projects")
     .select()
     .then(projects => {
@@ -15,7 +15,7 @@ router.get("/", adminAuthenticationMiddleware(), function(req, res, next) {
 });
 
 // ADD A NEW PROJECT
-router.get("/new", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/new", admin(), (req, res) => {
   // Fetch the managers first
   knex("managers")
     .select()
@@ -26,7 +26,7 @@ router.get("/new", adminAuthenticationMiddleware(), (req, res) => {
 });
 
 // ADD A NEW TASK
-router.get("/:id/tasks/new", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/:id/tasks/new", adminAndManager(), (req, res) => {
   const id = req.params.id;
   knex("employees")
     .select()
@@ -36,13 +36,13 @@ router.get("/:id/tasks/new", adminAuthenticationMiddleware(), (req, res) => {
 });
 
 // GET A SPECIFIC PROJECT
-router.get("/:id", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/:id", adminAndManager(), (req, res) => {
   const id = req.params.id;
   respondAndRenderProject(id, res, "singleProject");
 });
 
 // GET EDIT SCREEN
-router.get("/:id/edit", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/:id/edit", admin(), (req, res) => {
   const project_id = req.params.id;
   knex("projects")
     .select()
@@ -55,21 +55,13 @@ router.get("/:id/edit", adminAuthenticationMiddleware(), (req, res) => {
 });
 
 // GET TASKS
-router.get("/:id/tasks", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/:id/tasks", adminAndManager(), (req, res) => {
   const id = req.params.id;
   respondAndRenderTasks(id, res, "tasks");
 });
 
-/*TODO delete this
-// GET A SPECIFIC TASK
-router.get("/:project_id/tasks/:task_id", (req, res) => {
-  const id = req.params.project_id;
-  const task_id = req.params.task_id;
-  respondAndRenderSingleTask(task_id, res, "singleTask");
-});
-*/
 // GET MANAGERS
-router.get("/:id/managers", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/:id/managers", admin(), (req, res) => {
   const id = req.params.id;
   knex("managers")
     .innerJoin("manager-project", "manager-project.manager_id", "managers.id")
@@ -97,7 +89,7 @@ router.get("/:id/managers", adminAuthenticationMiddleware(), (req, res) => {
 });
 
 /* ************** PUT ROUTES ************** */
-router.post("/:project_id", adminAuthenticationMiddleware(), (req, res) => {
+router.post("/:project_id", admin(), (req, res) => {
   const project_id = req.params.project_id;
   console.log(JSON.stringify(req.body, undefined, 2));
   const project = {
@@ -117,7 +109,7 @@ router.post("/:project_id", adminAuthenticationMiddleware(), (req, res) => {
 
 /* ************** POST ROUTES ************** */
 // CREATE A PROJECT
-router.post("/", adminAuthenticationMiddleware(), (req, res) => {
+router.post("/", admin(), (req, res) => {
   validateProjectRenderError(req, res, project => {
     console.log(req.body);
     knex("projects")
@@ -139,65 +131,53 @@ router.post("/", adminAuthenticationMiddleware(), (req, res) => {
 });
 
 // Create a Task
-router.post(
-  "/:project_id/tasks",
-  adminAuthenticationMiddleware(),
-  (req, res) => {
-    const project_id = req.params.project_id;
-    validateTaskRenderError(req, res, task => {
-      task.project_id = project_id;
-      knex("tasks")
-        .insert(task, "id")
-        .then(ids => {
-          const id = ids[0];
-          res.redirect(`/tasks/${id}`);
-        });
-    });
-  }
-);
+router.post("/:project_id/tasks", adminAndManager(), (req, res) => {
+  const project_id = req.params.project_id;
+  validateTaskRenderError(req, res, task => {
+    task.project_id = project_id;
+    knex("tasks")
+      .insert(task, "id")
+      .then(ids => {
+        const id = ids[0];
+        res.redirect(`/tasks/${id}`);
+      });
+  });
+});
 
 // Add a new manager
-router.post(
-  "/:project_id/managers/:manager_id",
-  adminAuthenticationMiddleware(),
-  (req, res) => {
-    const manager_id = req.params.manager_id;
-    const project_id = req.params.project_id;
-    // console.log(JSON.stringify(req.body, undefined, 2));
-    const rel = {
-      manager_id: manager_id,
-      project_id: project_id
-    };
-    knex("manager-project")
-      .insert(rel)
-      .then(() => {
-        const url = "/projects/" + project_id + "/managers";
-        res.redirect(url);
-      });
-  }
-);
+router.post("/:project_id/managers/:manager_id", admin(), (req, res) => {
+  const manager_id = req.params.manager_id;
+  const project_id = req.params.project_id;
+  // console.log(JSON.stringify(req.body, undefined, 2));
+  const rel = {
+    manager_id: manager_id,
+    project_id: project_id
+  };
+  knex("manager-project")
+    .insert(rel)
+    .then(() => {
+      const url = "/projects/" + project_id + "/managers";
+      res.redirect(url);
+    });
+});
 
 /* ************** DELETE ROUTES ************** */
 // Delete the specific manager-project relation
-router.delete(
-  "/:project_id/managers/:manager_id",
-  adminAuthenticationMiddleware(),
-  (req, res) => {
-    const manager_id = req.params.manager_id;
-    const project_id = req.params.project_id;
-    console.log(JSON.stringify(req.body, undefined, 2));
-    knex("manager-project")
-      .where("manager_id", manager_id)
-      .andWhere("project_id", project_id)
-      .del()
-      .then(() => {
-        const url = "/projects/" + project_id + "/managers";
-        res.redirect(url);
-      });
-  }
-);
+router.delete("/:project_id/managers/:manager_id", admin(), (req, res) => {
+  const manager_id = req.params.manager_id;
+  const project_id = req.params.project_id;
+  console.log(JSON.stringify(req.body, undefined, 2));
+  knex("manager-project")
+    .where("manager_id", manager_id)
+    .andWhere("project_id", project_id)
+    .del()
+    .then(() => {
+      const url = "/projects/" + project_id + "/managers";
+      res.redirect(url);
+    });
+});
 
-router.delete("/:project_id", adminAuthenticationMiddleware(), (req, res) => {
+router.delete("/:project_id", admin(), (req, res) => {
   const id = req.params.project_id;
   knex("projects")
     .where("id", id)
@@ -329,7 +309,7 @@ function validId(id) {
   return !isNaN(id);
 }
 
-function adminAuthenticationMiddleware() {
+function admin() {
   return (req, res, next) => {
     console.log(
       `req.session.passport.user: ${JSON.stringify(
@@ -344,6 +324,48 @@ function adminAuthenticationMiddleware() {
       }
     }
     res.redirect("/adminLogin");
+  };
+}
+
+function adminAndManager() {
+  return (req, res, next) => {
+    console.log(
+      `req.session.passport.user: ${JSON.stringify(
+        req.session.passport,
+        undefined,
+        2
+      )}`
+    );
+    if (req.isAuthenticated()) {
+      if (req.session.passport.user.isAdmin) {
+        return next();
+      } else {
+        const manager_id = req.session.passport.user.id;
+        knex("projects")
+          .innerJoin(
+            "manager-project",
+            "projects.id",
+            "manager-project.project_id"
+          )
+          .where("manager_id", manager_id)
+          .then(projects => {
+            let project_id;
+            if (req.params.id) {
+              project_id = req.params.id;
+            } else {
+              project_id = req.params.project_id;
+            }
+            for (var i = 0; i < projects.length; i++) {
+              if (
+                projects[i].project_id == project_id ||
+                projects[i].project_id == project_id
+              ) {
+                return next();
+              }
+            }
+          });
+      }
+    }
   };
 }
 module.exports = router;

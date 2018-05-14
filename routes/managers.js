@@ -5,7 +5,7 @@ const knex = require("../db/knex");
 
 /* ************* GET ROUTES ************* */
 // Get all managers
-router.get("/", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/", admin(), (req, res) => {
   knex("managers")
     .select()
     .then(managers => {
@@ -14,12 +14,12 @@ router.get("/", adminAuthenticationMiddleware(), (req, res) => {
 });
 
 // New Manager
-router.get("/new", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/new", admin(), (req, res) => {
   res.render("newManager");
 });
 
 // Get Edit Manager Page
-router.get("/:id/edit", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/:id/edit", admin(), (req, res) => {
   const id = req.params.id;
   knex("managers")
     .select()
@@ -31,41 +31,8 @@ router.get("/:id/edit", adminAuthenticationMiddleware(), (req, res) => {
     });
 });
 
-/* ************* POST ROUTES ************* */
-// Create a new Manager
-router.post("/", adminAuthenticationMiddleware(), (req, res) => {
-  validateManager(req, res, manager => {
-    knex("managers")
-      .insert(manager, "id")
-      .then(ids => {
-        const id = ids[0];
-        const url = "/managers/" + id;
-        res.redirect(url);
-      });
-  });
-});
-
-/* ************* PUT ROUTES ************* */
-// Edit Specific Manager
-router.put("/:id", adminAuthenticationMiddleware(), (req, res) => {
-  const id = req.params.id;
-  // console.log(JSON.stringify(req.body, undefined, 2));
-  const manager = {
-    name: req.body.name,
-    email: req.body.description,
-    password: req.body.password
-  };
-  knex("managers")
-    .where("id", id)
-    .update(manager, "id")
-    .then(() => {
-      const url = "/managers/" + id;
-      res.redirect(url);
-    });
-});
-
 // Get a specific manager
-router.get("/:id", adminAuthenticationMiddleware(), (req, res) => {
+router.get("/:id", adminAndManager(), (req, res) => {
   const id = req.params.id;
   knex("managers")
     .select()
@@ -88,8 +55,62 @@ router.get("/:id", adminAuthenticationMiddleware(), (req, res) => {
     });
 });
 
+// Get a specific managers tasks
+router.get("/:manager_id/tasks", adminAndManager(), (req, res) => {
+  const manager_id = req.params.manager_id;
+  knex("tasks")
+    .select()
+    .whereIn(
+      "project_id",
+      knex("projects")
+        .select("project_id")
+        .innerJoin(
+          "manager-project",
+          "projects.id",
+          "manager-project.project_id"
+        )
+        .where("manager_id", manager_id)
+    )
+    .then(tasks => {
+      res.render("managerTasks", { tasks: tasks });
+    });
+});
+
+/* ************* POST ROUTES ************* */
+// Create a new Manager
+router.post("/", admin(), (req, res) => {
+  validateManager(req, res, manager => {
+    knex("managers")
+      .insert(manager, "id")
+      .then(ids => {
+        const id = ids[0];
+        const url = "/managers/" + id;
+        res.redirect(url);
+      });
+  });
+});
+
+/* ************* PUT ROUTES ************* */
+// Edit Specific Manager
+router.put("/:id", admin(), (req, res) => {
+  const id = req.params.id;
+  // console.log(JSON.stringify(req.body, undefined, 2));
+  const manager = {
+    name: req.body.name,
+    email: req.body.description,
+    password: req.body.password
+  };
+  knex("managers")
+    .where("id", id)
+    .update(manager, "id")
+    .then(() => {
+      const url = "/managers/" + id;
+      res.redirect(url);
+    });
+});
+
 /* ************* DELETE ROUTES ************* */
-router.delete("/:id", adminAuthenticationMiddleware(), (req, res) => {
+router.delete("/:id", admin(), (req, res) => {
   const id = req.params.id;
   knex("managers")
     .where("id", id)
@@ -126,7 +147,7 @@ function validManager(manager) {
   );
 }
 
-function adminAuthenticationMiddleware() {
+function admin() {
   return (req, res, next) => {
     console.log(
       `req.session.passport.user: ${JSON.stringify(
@@ -136,7 +157,39 @@ function adminAuthenticationMiddleware() {
       )}`
     );
     if (req.isAuthenticated()) {
-      return next();
+      if (req.session.passport.user.isAdmin) {
+        return next();
+      }
+    }
+    res.redirect("/adminLogin");
+  };
+}
+
+function adminAndManager() {
+  return (req, res, next) => {
+    console.log("Manager.js Admin and Manager Kilidi");
+    console.log(
+      `req.session.passport.user: ${JSON.stringify(
+        req.session.passport,
+        undefined,
+        2
+      )}`
+    );
+    if (req.isAuthenticated()) {
+      console.log("Manager.js Admin and Manager Kilidinde Auth olmuşuz");
+      if (req.session.passport.user.isAdmin) {
+        return next();
+      } else {
+        let manager_id;
+        if (req.params.id) {
+          manager_id = req.params.id;
+        } else {
+          manager_id = req.params.manager_id;
+        }
+        if (manager_id == req.session.passport.user.id) {
+          return next();
+        }
+      }
     }
     res.redirect("/adminLogin");
   };

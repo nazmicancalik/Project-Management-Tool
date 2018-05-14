@@ -1,0 +1,12 @@
+<br>
+<div style="text-align:center; padding:10px; font-family: 'Pangolin';
+        font-size: 48px;">
+  <label for="Tasks">All Tasks of Manager</label>
+  <hr>
+</div>
+<br>
+<ul class="list-group">
+  {{#each tasks}}
+    <a href="/tasks/{{id}}" style="background-color:#CC3232; color:white; opacity:0.90" class="list-group-item">{{title}}</a>
+  {{/each}}
+</ul>
