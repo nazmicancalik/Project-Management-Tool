@@ -120,11 +120,15 @@ router.post("/", admin(), (req, res) => {
       })
       .then(id => {
         validateManagerProjectRelationRenderError(id, req, res, rels => {
-          knex("manager-project")
-            .insert(rels)
-            .then(() => {
-              res.redirect(`/projects/${id}`);
-            });
+          if (rels === undefined || rels.length == 0) {
+            res.redirect(`/projects/${id}`);
+          } else {
+            knex("manager-project")
+              .insert(rels)
+              .then(() => {
+                res.redirect(`/projects/${id}`);
+              });
+          }
         });
       });
   });
@@ -261,13 +265,14 @@ function validateProjectRenderError(req, res, callback) {
 function validateManagerProjectRelationRenderError(id, req, res, callback) {
   if (id != "undefined") {
     var rels = [];
-    for (var i = 0; i < req.body.managers.length; i++) {
-      let obj = {};
-      obj.manager_id = req.body.managers[i];
-      obj.project_id = id;
-      rels.push(obj);
+    if (req.body.managers) {
+      for (var i = 0; i < req.body.managers.length; i++) {
+        let obj = {};
+        obj.manager_id = req.body.managers[i];
+        obj.project_id = id;
+        rels.push(obj);
+      }
     }
-
     callback(rels);
   } else {
     res.status(500);

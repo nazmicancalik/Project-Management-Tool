@@ -82,11 +82,15 @@ router.post("/", (req, res) => {
     })
     .then(id => {
       validateEmployeeTaskRelationRenderError(id, req, res, rels => {
-        knex("employee-task")
-          .insert(rels)
-          .then(() => {
-            res.redirect(`/tasks/${id}`);
-          });
+        if (rels === undefined || rels.length == 0) {
+          res.redirect(`/tasks/${id}`);
+        } else {
+          knex("employee-task")
+            .insert(rels)
+            .then(() => {
+              res.redirect(`/tasks/${id}`);
+            });
+        }
       });
     });
 });
@@ -166,13 +170,14 @@ router.delete(
 function validateEmployeeTaskRelationRenderError(id, req, res, callback) {
   if (id != "undefined") {
     var rels = [];
-    for (var i = 0; i < req.body.employees.length; i++) {
-      let obj = {};
-      obj.employee_id = req.body.employees[i];
-      obj.task_id = id;
-      rels.push(obj);
+    if (req.body.employees) {
+      for (var i = 0; i < req.body.employees.length; i++) {
+        let obj = {};
+        obj.employee_id = req.body.employees[i];
+        obj.task_id = id;
+        rels.push(obj);
+      }
     }
-
     callback(rels);
   } else {
     res.status(500);

@@ -94,7 +94,6 @@ router.post("/", admin(), (req, res) => {
 // Edit Specific Manager
 router.put("/:id", admin(), (req, res) => {
   const id = req.params.id;
-  // console.log(JSON.stringify(req.body, undefined, 2));
   const manager = {
     name: req.body.name,
     email: req.body.description,
