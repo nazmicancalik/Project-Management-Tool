@@ -9,7 +9,7 @@ router.get("/", adminAuthenticationMiddleware(), function(req, res, next) {
   knex("employees")
     .select()
     .then(employees => {
-      // console.log(JSON.stringify(employees, undefined, 2));
+      // // console.log(JSON.stringify(employees, undefined, 2));
       res.render("employees", { employees: employees });
     });
 });
@@ -42,6 +42,17 @@ router.post("/", adminAuthenticationMiddleware(), (req, res) => {
         res.redirect(`/employees/${id}`);
       });
   });
+});
+
+/* ************* DELETE ROUTES ************* */
+router.delete("/:id", adminAuthenticationMiddleware(), (req, res) => {
+  const id = req.params.id;
+  knex("employees")
+    .where("id", id)
+    .del()
+    .then(() => {
+      res.redirect("/employees");
+    });
 });
 
 function validateEmployeeRenderError(req, res, callback) {
@@ -83,7 +94,7 @@ function respondAndRenderTasks(id, res, viewName) {
       .select()
       .where("employee_id", id)
       .then(tasks => {
-        console.log(JSON.stringify(tasks, undefined, 2));
+        // console.log(JSON.stringify(tasks, undefined, 2));
         res.render(viewName, { tasks: tasks, employee_id: id });
       });
   } else {
@@ -100,13 +111,6 @@ function validId(id) {
 
 function adminAuthenticationMiddleware() {
   return (req, res, next) => {
-    console.log(
-      `req.session.passport.user: ${JSON.stringify(
-        req.session.passport,
-        undefined,
-        2
-      )}`
-    );
     if (req.isAuthenticated()) {
       return next();
     }

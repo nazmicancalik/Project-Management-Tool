@@ -26,7 +26,7 @@ router.get("/:id/edit", admin(), (req, res) => {
     .where("id", id)
     .first()
     .then(manager => {
-      // console.log(JSON.stringify(project, undefined, 2));
+      // // console.log(JSON.stringify(project, undefined, 2));
       res.render("editManager", { manager: manager });
     });
 });
@@ -148,13 +148,6 @@ function validManager(manager) {
 
 function admin() {
   return (req, res, next) => {
-    console.log(
-      `req.session.passport.user: ${JSON.stringify(
-        req.session.passport,
-        undefined,
-        2
-      )}`
-    );
     if (req.isAuthenticated()) {
       if (req.session.passport.user.isAdmin) {
         return next();
@@ -166,16 +159,8 @@ function admin() {
 
 function adminAndManager() {
   return (req, res, next) => {
-    console.log("Manager.js Admin and Manager Kilidi");
-    console.log(
-      `req.session.passport.user: ${JSON.stringify(
-        req.session.passport,
-        undefined,
-        2
-      )}`
-    );
     if (req.isAuthenticated()) {
-      console.log("Manager.js Admin and Manager Kilidinde Auth olmuşuz");
+      // console.log("Manager.js Admin and Manager Kilidinde Auth olmuşuz");
       if (req.session.passport.user.isAdmin) {
         return next();
       } else {

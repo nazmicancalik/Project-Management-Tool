@@ -9,7 +9,7 @@ router.get("/", admin(), function(req, res, next) {
   knex("projects")
     .select()
     .then(projects => {
-      // console.log(JSON.stringify(projects, undefined, 2));
+      // // console.log(JSON.stringify(projects, undefined, 2));
       res.render("projects", { projects: projects });
     });
 });
@@ -20,7 +20,7 @@ router.get("/new", admin(), (req, res) => {
   knex("managers")
     .select()
     .then(managers => {
-      console.log(JSON.stringify(managers, undefined, 2));
+      // console.log(JSON.stringify(managers, undefined, 2));
       res.render("newProject", { managers: managers });
     });
 });
@@ -28,9 +28,11 @@ router.get("/new", admin(), (req, res) => {
 // ADD A NEW TASK
 router.get("/:id/tasks/new", adminAndManager(), (req, res) => {
   const id = req.params.id;
+  // console.log("****************************");
   knex("employees")
     .select()
     .then(employees => {
+      // console.log(JSON.stringify(employees, undefined, 2));
       res.render("newTask", { project_id: id, employees: employees });
     });
 });
@@ -49,7 +51,7 @@ router.get("/:id/edit", admin(), (req, res) => {
     .where("id", project_id)
     .first()
     .then(project => {
-      // console.log(JSON.stringify(project, undefined, 2));
+      // // console.log(JSON.stringify(project, undefined, 2));
       res.render("editProject", { project: project });
     });
 });
@@ -68,7 +70,7 @@ router.get("/:id/managers", admin(), (req, res) => {
     .select()
     .where("project_id", id)
     .then(managers => {
-      // console.log(JSON.stringify(managers, undefined, 2));
+      // // console.log(JSON.stringify(managers, undefined, 2));
       knex("managers")
         .select()
         .whereNotIn(
@@ -78,7 +80,7 @@ router.get("/:id/managers", admin(), (req, res) => {
             .where("project_id", id)
         )
         .then(other_managers => {
-          console.log(JSON.stringify(other_managers, undefined, 2));
+          // console.log(JSON.stringify(other_managers, undefined, 2));
           res.render("managers", {
             managers: managers,
             other_managers: other_managers,
@@ -91,7 +93,7 @@ router.get("/:id/managers", admin(), (req, res) => {
 /* ************** PUT ROUTES ************** */
 router.post("/:project_id", admin(), (req, res) => {
   const project_id = req.params.project_id;
-  console.log(JSON.stringify(req.body, undefined, 2));
+  // console.log(JSON.stringify(req.body, undefined, 2));
   const project = {
     title: req.body.title,
     description: req.body.description,
@@ -111,7 +113,7 @@ router.post("/:project_id", admin(), (req, res) => {
 // CREATE A PROJECT
 router.post("/", admin(), (req, res) => {
   validateProjectRenderError(req, res, project => {
-    console.log(req.body);
+    // console.log(req.body);
     knex("projects")
       .insert(project, "id")
       .then(ids => {
@@ -152,7 +154,7 @@ router.post("/:project_id/tasks", adminAndManager(), (req, res) => {
 router.post("/:project_id/managers/:manager_id", admin(), (req, res) => {
   const manager_id = req.params.manager_id;
   const project_id = req.params.project_id;
-  // console.log(JSON.stringify(req.body, undefined, 2));
+  // // console.log(JSON.stringify(req.body, undefined, 2));
   const rel = {
     manager_id: manager_id,
     project_id: project_id
@@ -170,7 +172,7 @@ router.post("/:project_id/managers/:manager_id", admin(), (req, res) => {
 router.delete("/:project_id/managers/:manager_id", admin(), (req, res) => {
   const manager_id = req.params.manager_id;
   const project_id = req.params.project_id;
-  console.log(JSON.stringify(req.body, undefined, 2));
+  // console.log(JSON.stringify(req.body, undefined, 2));
   knex("manager-project")
     .where("manager_id", manager_id)
     .andWhere("project_id", project_id)
@@ -214,7 +216,7 @@ function respondAndRenderTasks(id, res, viewName) {
       .select()
       .where("project_id", id)
       .then(tasks => {
-        console.log(JSON.stringify(tasks, undefined, 2));
+        // console.log(JSON.stringify(tasks, undefined, 2));
         res.render(viewName, { tasks: tasks, project_id: id, canCreate: true });
       });
   } else {
@@ -232,7 +234,7 @@ function respondAndRenderSingleTask(id, res, viewName) {
       .where("id", id)
       .first()
       .then(task => {
-        console.log(JSON.stringify(task, undefined, 2));
+        // console.log(JSON.stringify(task, undefined, 2));
         res.render(viewName, task);
       });
   } else {
@@ -283,7 +285,7 @@ function validateManagerProjectRelationRenderError(id, req, res, callback) {
 }
 
 function validateTaskRenderError(req, res, callback) {
-  console.log(req.body);
+  // console.log(req.body);
   if (validTask(req.body)) {
     const task = {
       title: req.body.title,
@@ -316,13 +318,6 @@ function validId(id) {
 
 function admin() {
   return (req, res, next) => {
-    console.log(
-      `req.session.passport.user: ${JSON.stringify(
-        req.session.passport,
-        undefined,
-        2
-      )}`
-    );
     if (req.isAuthenticated()) {
       if (req.session.passport.user.isAdmin) {
         return next();
@@ -334,13 +329,6 @@ function admin() {
 
 function adminAndManager() {
   return (req, res, next) => {
-    console.log(
-      `req.session.passport.user: ${JSON.stringify(
-        req.session.passport,
-        undefined,
-        2
-      )}`
-    );
     if (req.isAuthenticated()) {
       if (req.session.passport.user.isAdmin) {
         return next();

@@ -67,8 +67,8 @@ passport.use(
           return done(null, false, { message: "Incorrect Password" });
         }
         done(null, { id: admin.id, isAdmin: true });
-        console.log("Looking up for an admin");
-        console.log(JSON.stringify(admin, undefined, 2));
+        // console.log("Looking up for an admin");
+        // console.log(JSON.stringify(admin, undefined, 2));
       });
   })
 );
@@ -88,20 +88,20 @@ passport.use(
         if (manager.password !== password) {
           return done(null, false, { message: "Incorrect Password" });
         }
-        console.log("Looking up for a manager");
-        console.log(JSON.stringify(manager, undefined, 2));
+        // console.log("Looking up for a manager");
+        // console.log(JSON.stringify(manager, undefined, 2));
         done(null, { id: manager.id, isAdmin: false });
       });
   })
 );
 
 passport.serializeUser((user, done) => {
-  console.log("Serialize girdik");
+  // console.log("Serialize girdik");
   done(null, user);
 });
 
 passport.deserializeUser((user, done) => {
-  console.log("Deserialize girdik");
+  // console.log("Deserialize girdik");
   if (user.isAdmin === true) {
     knex("admins")
       .select()
@@ -113,7 +113,7 @@ passport.deserializeUser((user, done) => {
         }
       });
   } else {
-    console.log(JSON.stringify(user, undefined, 2));
+    // console.log(JSON.stringify(user, undefined, 2));
     knex("managers")
       .select()
       .where("id", user.id)
@@ -128,13 +128,6 @@ passport.deserializeUser((user, done) => {
 
 function admin() {
   return (req, res, next) => {
-    console.log(
-      `req.session.passport.user: ${JSON.stringify(
-        req.session.passport,
-        undefined,
-        2
-      )}`
-    );
     if (req.isAuthenticated()) {
       if (req.session.passport.user.isAdmin) {
         return next();

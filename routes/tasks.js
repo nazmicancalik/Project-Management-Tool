@@ -30,7 +30,7 @@ router.get("/:id/edit", adminAndManager(), (req, res) => {
     .where("id", id)
     .first()
     .then(task => {
-      // console.log(JSON.stringify(project, undefined, 2));
+      // // console.log(JSON.stringify(project, undefined, 2));
       res.render("editTask", { task: task });
     });
 });
@@ -43,17 +43,23 @@ router.get("/:id/employees", adminAndManager(), (req, res) => {
     .select()
     .where("task_id", id)
     .then(employees => {
-      // console.log(JSON.stringify(managers, undefined, 2));
       knex("employees")
         .select()
         .whereNotIn(
           "id",
           knex("employee-task")
+            .innerJoin("tasks", "employee-task.task_id", "tasks.id")
             .select("employee_id")
             .where("task_id", id)
+            .orWhere(
+              "tasks.start_date",
+              knex("tasks")
+                .select("start_date")
+                .where("id", id)
+            )
         )
         .then(other_employees => {
-          console.log(JSON.stringify(other_employees, undefined, 2));
+          // console.log(JSON.stringify(other_employees, undefined, 2));
           res.render("employeeTask", {
             employees: employees,
             other_employees: other_employees,
@@ -64,7 +70,7 @@ router.get("/:id/employees", adminAndManager(), (req, res) => {
 });
 /* ************* POST ROUTES ************* */
 router.post("/", (req, res) => {
-  console.log(JSON.stringify(req.body, undefined, 2));
+  // console.log(JSON.stringify(req.body, undefined, 2));
   const task = {
     title: req.body.title,
     description: req.body.description,
@@ -73,7 +79,7 @@ router.post("/", (req, res) => {
     project_id: req.body.project_id,
     done: false
   };
-  console.log(req.body.employees);
+  // console.log(req.body.employees);
   knex("tasks")
     .insert(task, "id")
     .then(ids => {
@@ -85,6 +91,8 @@ router.post("/", (req, res) => {
         if (rels === undefined || rels.length == 0) {
           res.redirect(`/tasks/${id}`);
         } else {
+          // console.log("Here we are");
+          // console.log(JSON.stringify(rels, undefined, 2));
           knex("employee-task")
             .insert(rels)
             .then(() => {
@@ -102,7 +110,7 @@ router.post(
   (req, res) => {
     const employee_id = req.params.employee_id;
     const task_id = req.params.task_id;
-    // console.log(JSON.stringify(req.body, undefined, 2));
+    // // console.log(JSON.stringify(req.body, undefined, 2));
     const rel = {
       employee_id: employee_id,
       task_id: task_id
@@ -119,7 +127,7 @@ router.post(
 /* ************* PUT ROUTES ************* */
 router.put("/:id", adminAndManager(), (req, res) => {
   const id = req.params.id;
-  // console.log(JSON.stringify(req.body, undefined, 2));
+  // // console.log(JSON.stringify(req.body, undefined, 2));
   const task = {
     title: req.body.title,
     description: req.body.description,
@@ -155,7 +163,7 @@ router.delete(
   (req, res) => {
     const employee_id = req.params.employee_id;
     const task_id = req.params.task_id;
-    console.log(JSON.stringify(req.body, undefined, 2));
+    // console.log(JSON.stringify(req.body, undefined, 2));
     knex("employee-task")
       .where("employee_id", employee_id)
       .andWhere("task_id", task_id)
@@ -170,10 +178,16 @@ router.delete(
 function validateEmployeeTaskRelationRenderError(id, req, res, callback) {
   if (id != "undefined") {
     var rels = [];
+    var employees = [];
     if (req.body.employees) {
-      for (var i = 0; i < req.body.employees.length; i++) {
+      if (typeof req.body.employees === "string") {
+        employees[0] = req.body.employees;
+      } else {
+        employees = req.body.employees;
+      }
+      for (var i = 0; i < employees.length; i++) {
         let obj = {};
-        obj.employee_id = req.body.employees[i];
+        obj.employee_id = employees[i];
         obj.task_id = id;
         rels.push(obj);
       }
@@ -189,13 +203,6 @@ function validateEmployeeTaskRelationRenderError(id, req, res, callback) {
 
 function admin() {
   return (req, res, next) => {
-    console.log(
-      `req.session.passport.user: ${JSON.stringify(
-        req.session.passport,
-        undefined,
-        2
-      )}`
-    );
     if (req.isAuthenticated() && req.session.passport.user.isAdmin) {
       return next();
     }
@@ -205,13 +212,6 @@ function admin() {
 
 function adminAndManager() {
   return (req, res, next) => {
-    console.log(
-      `req.session.passport.user: ${JSON.stringify(
-        req.session.passport,
-        undefined,
-        2
-      )}`
-    );
     if (req.isAuthenticated()) {
       if (req.session.passport.user.isAdmin) {
         return next();

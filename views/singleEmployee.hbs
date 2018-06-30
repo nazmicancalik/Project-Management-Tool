@@ -1,4 +1,7 @@
 <div class="jumbotron">
   <h4 >Employee Name: {{name}}</h4>
-    <a class="btn btn-primary btn-default" href="/employees/{{id}}/tasks" role="button">See Tasks</a>
+      <a class="btn btn-danger btn-md" href="/employees/{{id}}/tasks" role="button">See Tasks</a>
+    <form class="form-group" action="/employees/{{id}}?_method=DELETE" method="post">
+      <button style="margin-top:5px;" class="btn btn-danger btn-md" type="submit" name="button" role="button">Delete</button>
+    </form>
 </div>

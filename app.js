@@ -89,8 +89,8 @@ passport.use(
         }
         return done(null, admin);
       });*/
-      console.log(email);
-      console.log(password);
+      // console.log(email);
+      // console.log(password);
       return done(null, "dsad");
     })
   )
